@@ -16,4 +16,5 @@ jobs:
           available for use in later steps.
         icon: arrow-down-circle
         color: orange
+        email: charlieegan3@users.noreply.github.com
         github-token: '${{ secrets.GITHUB_TOKEN }}'

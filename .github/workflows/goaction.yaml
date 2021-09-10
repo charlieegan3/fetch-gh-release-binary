@@ -14,4 +14,6 @@ jobs:
         desc: |
           GitHub Action to download binaries from GitHub releases and make them
           available for use in later steps.
+        icon: arrow-down-circle
+        color: orange
         github-token: '${{ secrets.GITHUB_TOKEN }}'

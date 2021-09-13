@@ -23,6 +23,7 @@ var repo = flag.String("repo", "", "Repo with the release asset")
 var version = flag.String("version", "", "Version of the release asset to fetch, if unset, use latest")
 var assetPattern = flag.String("asset-pattern", "", "Pattern the asset name must match")
 var installPath = flag.String("install-path", "", "Where to put the installed binary")
+var verbose = flag.Bool("verbose", false, "whether to enable verbose logging")
 
 var githubToken = os.Getenv("GITHUB_TOKEN")
 
@@ -37,7 +38,7 @@ func main() {
 	}
 
 	// check that we can use the supplied pattern to match assets
-	assetPatternRegexp, err := regexp.Compile(*assetPattern)
+	assetPatternRegexp, err := regexp.Compile(strings.TrimSpace(*assetPattern))
 	if err != nil {
 		log.Fatalf("asset-pattern (%s) was not a valid regexp: %s", *assetPattern, err)
 	}
@@ -58,19 +59,32 @@ func main() {
 			log.Fatalf("There were no releases for this repo")
 		}
 		release = releases[0]
+
+		if *verbose {
+			log.Printf("using release: %s", *release.Name)
+		}
 	} else {
 		// if version is set, then look up the release by tag
 		release, _, err = client.Repositories.GetReleaseByTag(httpRequestCtx, *owner, *repo, *version)
 		if err != nil {
 			log.Fatalf("Failed to get releases: %s", err)
 		}
+		if *verbose {
+			log.Printf("using release: %s", *release.Name)
+		}
 	}
 
 	// find the asset to download from a number of release assets
 	assetDownloadURL := ""
 	for _, v := range release.Assets {
+		if *verbose {
+			log.Printf("checking asset with name: %s", *v.Name)
+		}
 		if assetPatternRegexp.MatchString(*(v.Name)) {
 			assetDownloadURL = v.GetBrowserDownloadURL()
+			if *verbose {
+				log.Printf("selected asset with name: %s", *v.Name)
+			}
 			break
 		}
 	}

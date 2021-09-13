@@ -26,6 +26,7 @@ var installPath = flag.String("install-path", "", "Where to put the installed bi
 var verbose = flag.Bool("verbose", false, "whether to enable verbose logging")
 
 var githubToken = os.Getenv("GITHUB_TOKEN")
+var githubPath = os.Getenv("GITHUB_PATH")
 
 func main() {
 	// make sure that the required flags and env vars are set
@@ -36,6 +37,10 @@ func main() {
 		// this is used by the GH client transparently
 		log.Fatalf("GITHUB_TOKEN must be set")
 	}
+	if githubPath == "" {
+		// this is used to add the installed binary to the actions path
+		log.Fatalf("GITHUB_PATH must be set")
+	}
 
 	// check that we can use the supplied pattern to match assets
 	assetPatternRegexp, err := regexp.Compile(strings.TrimSpace(*assetPattern))
@@ -44,7 +49,7 @@ func main() {
 	}
 
 	// list releases for the repo
-	log.Printf("Listing releases for %s/%s", *owner, *repo)
+	log.Printf("listing releases for %s/%s", *owner, *repo)
 	client := github.NewClient(nil)
 
 	var release *github.RepositoryRelease
@@ -93,7 +98,7 @@ func main() {
 	}
 
 	// download the asset to a tempdir
-	log.Println("downloading matching asset")
+	log.Printf("downloading matching asset: %s", assetDownloadURL)
 	resp, err := http.Get(assetDownloadURL)
 	if err != nil {
 		log.Fatalf("failed to get release asset: %s", err)
@@ -107,7 +112,7 @@ func main() {
 
 	// extract the download if needed
 	var binaryPath string
-	if strings.HasSuffix(*assetPattern, "tar.gz") {
+	if strings.HasSuffix(assetDownloadURL, ".tar.gz") {
 		log.Println("unpacking tar.gz to temp dir")
 
 		err = untar(dir, resp.Body)
@@ -134,6 +139,9 @@ func main() {
 			}
 
 			if http.DetectContentType(byteSlice) == "application/octet-stream" {
+				if *verbose {
+					log.Printf("selected binary '%s' from tar", item.Name())
+				}
 				binaryItems = append(binaryItems, itemPath)
 			}
 		}
@@ -164,6 +172,16 @@ func main() {
 	err = os.Chmod(*installPath, 0755)
 	if err != nil {
 		log.Fatalf("failed to set binary as executable: %s", err)
+	}
+
+	// add the new binary to the GITHUB_PATH
+	f, err := os.OpenFile(githubPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("failed to open GH path: %s", err)
+	}
+	defer f.Close()
+	if _, err := f.WriteString(filepath.Dir(*installPath) + "\n"); err != nil {
+		log.Fatalf("failed to update GH path: %s", err)
 	}
 }
 

@@ -27,18 +27,23 @@ inputs:
 runs:
   using: "composite"
   steps:
-  - name: Check out repository
-    uses: actions/checkout@v2
-    with:
-      repository: charlieegan3/fetch-gh-release-binary
   - run: |
-      go run main.go \
+      VERSION=0.3.1
+      ASSET_NAME=fetch-gh-release-binary_0.3.1_Linux_amd64.tar.gz
+      BINARY_NAME=fetch-gh-release-binary
+
+      curl -LO https://github.com/charlieegan3/fetch-gh-release-binary/releases/download/$VERSION/$ASSET_NAME
+      tar -zxf $ASSET_NAME
+
+      ./$BINARY_NAME \
         "-owner=${{ inputs.owner }}" \
         "-repo=${{ inputs.repo }}" \
         "-version=${{ inputs.version }}" \
         "-asset-pattern=${{ inputs.asset-pattern }}" \
         "-install-path=${{ inputs.install-path }}" \
         "-verbose=${{ inputs.verbose }}"
+
+      rm $BINARY_NAME
     shell: bash
 branding:
   icon: arrow-down-circle

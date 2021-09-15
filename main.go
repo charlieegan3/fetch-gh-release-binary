@@ -20,7 +20,7 @@ import (
 
 var owner = flag.String("owner", "", "Owner of the repo with the release asset")
 var repo = flag.String("repo", "", "Repo with the release asset")
-var version = flag.String("version", "", "Version of the release asset to fetch, if unset, use latest")
+var binaryVersion = flag.String("version", "", "Version of the release asset to fetch, if unset, use latest")
 var assetPattern = flag.String("asset-pattern", "", "Pattern the asset name must match")
 var installPath = flag.String("install-path", "", "Where to put the installed binary")
 var verbose = flag.Bool("verbose", false, "whether to enable verbose logging")
@@ -54,7 +54,7 @@ func main() {
 
 	var release *github.RepositoryRelease
 	httpRequestCtx := context.Background()
-	if *version == "" {
+	if *binaryVersion == "" {
 		// if there is no version, then use the latest
 		releases, _, err := client.Repositories.ListReleases(httpRequestCtx, *owner, *repo, nil)
 		if err != nil {
@@ -70,7 +70,7 @@ func main() {
 		}
 	} else {
 		// if version is set, then look up the release by tag
-		release, _, err = client.Repositories.GetReleaseByTag(httpRequestCtx, *owner, *repo, *version)
+		release, _, err = client.Repositories.GetReleaseByTag(httpRequestCtx, *owner, *repo, *binaryVersion)
 		if err != nil {
 			log.Fatalf("Failed to get releases: %s", err)
 		}

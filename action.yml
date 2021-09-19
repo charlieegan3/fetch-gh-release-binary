@@ -30,7 +30,7 @@ runs:
   - run: |
       VERSION=0.3.2
       BINARY_NAME=fetch-gh-release-binary
-      ASSET_NAME=$BINARY_NAME_$VERSION_Linux_amd64.tar.gz
+      ASSET_NAME=${BINARY_NAME}_${VERSION}_Linux_amd64.tar.gz
 
       echo Fetching https://github.com/charlieegan3/fetch-gh-release-binary/releases/download/$VERSION/$ASSET_NAME
 

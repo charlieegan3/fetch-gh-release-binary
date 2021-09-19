@@ -138,6 +138,13 @@ func main() {
 				continue
 			}
 
+			if item.Name() == "README.md" {
+				continue
+			}
+			if item.Name() == "LICENSE" {
+				continue
+			}
+
 			if http.DetectContentType(byteSlice) == "application/octet-stream" {
 				if *verbose {
 					log.Printf("selected binary '%s' from tar", item.Name())

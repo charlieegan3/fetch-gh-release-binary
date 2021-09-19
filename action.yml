@@ -28,9 +28,9 @@ runs:
   using: "composite"
   steps:
   - run: |
-      VERSION=0.3.1
-      ASSET_NAME=fetch-gh-release-binary_0.3.1_Linux_amd64.tar.gz
+      VERSION=0.3.2
       BINARY_NAME=fetch-gh-release-binary
+      ASSET_NAME=$BINARY_NAME_$VERSION_Linux_amd64.tar.gz
 
       curl -LO https://github.com/charlieegan3/fetch-gh-release-binary/releases/download/$VERSION/$ASSET_NAME
       tar -zxf $ASSET_NAME

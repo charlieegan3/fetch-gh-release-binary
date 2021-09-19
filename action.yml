@@ -32,6 +32,8 @@ runs:
       BINARY_NAME=fetch-gh-release-binary
       ASSET_NAME=$BINARY_NAME_$VERSION_Linux_amd64.tar.gz
 
+      echo Fetching https://github.com/charlieegan3/fetch-gh-release-binary/releases/download/$VERSION/$ASSET_NAME
+
       curl -LO https://github.com/charlieegan3/fetch-gh-release-binary/releases/download/$VERSION/$ASSET_NAME
       tar -zxf $ASSET_NAME
 
